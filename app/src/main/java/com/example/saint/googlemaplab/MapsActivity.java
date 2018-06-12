@@ -3,6 +3,7 @@ package com.example.saint.googlemaplab;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 
+import com.example.saint.googlemaplab.utils.PermissionUtils;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -41,9 +42,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         // Add a marker in Sydney and move the camera
         mCurrentLocation = new LatLng(-34, 151);
-//        mMap.setMyLocationEnabled(true);
-
+        enableMyLocation();
         mMap.addMarker(new MarkerOptions().position(mCurrentLocation).title("Marker in Sydney"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(mCurrentLocation));
+    }
+
+    private void enableMyLocation() {
+        if (PermissionUtils.checkLocationPermission(this))
+            if (mMap != null) {
+                mMap.setMyLocationEnabled(true);
+            }
     }
 }
