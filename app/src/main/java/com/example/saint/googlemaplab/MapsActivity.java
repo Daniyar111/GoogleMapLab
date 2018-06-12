@@ -51,6 +51,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if (PermissionUtils.checkLocationPermission(this))
             if (mMap != null) {
                 mMap.setMyLocationEnabled(true);
+                mMap.setMaxZoomPreference(18);
             }
     }
 }
