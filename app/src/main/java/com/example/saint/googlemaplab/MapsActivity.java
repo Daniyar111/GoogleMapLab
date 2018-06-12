@@ -1,20 +1,30 @@
 package com.example.saint.googlemaplab;
 
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.widget.Toast;
 
+import com.example.saint.googlemaplab.utils.AppConstants;
 import com.example.saint.googlemaplab.utils.PermissionUtils;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
     private LatLng mCurrentLocation;
+    private FusedLocationProviderClient mFusedLocationProviderClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,7 +53,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // Add a marker in Sydney and move the camera
         mCurrentLocation = new LatLng(-34, 151);
         enableMyLocation();
-        mMap.addMarker(new MarkerOptions().position(mCurrentLocation).title("Marker in Sydney"));
+        setMarkerOnCosmoPark();
         mMap.moveCamera(CameraUpdateFactory.newLatLng(mCurrentLocation));
     }
 
@@ -53,5 +63,42 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 mMap.setMyLocationEnabled(true);
                 mMap.setMaxZoomPreference(18);
             }
+    }
+
+    private void getMyCurrentLocation() {
+        if(PermissionUtils.checkLocationPermission(this)) {
+            Task<Location> locationTask = mFusedLocationProviderClient.getLastLocation();
+
+            locationTask.addOnCompleteListener(new OnCompleteListener<Location>() {
+                @Override
+                public void onComplete(@NonNull Task<Location> task) {
+                    if(task.getResult() != null) {
+                        mCurrentLocation = new LatLng(task.getResult().getLatitude(),
+                                task.getResult().getLongitude());
+                    } else {
+                        Toast.makeText(MapsActivity.this, "No location detected!", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if(requestCode == AppConstants.REQUEST_CODE_LOCATION_PERMISSION) {
+            for(int result : grantResults) {
+                if(result == PackageManager.PERMISSION_GRANTED) {
+                    getMyCurrentLocation();
+                }
+            }
+        }
+    }
+
+    private void setMarkerOnCosmoPark() {
+        LatLng bishkek = new LatLng(42.83405728521415, 74.62109331508032);
+        MarkerOptions options = new MarkerOptions().position(bishkek).title("CosmoPark");
+        mMap.addMarker(options);
     }
 }
