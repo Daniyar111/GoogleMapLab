@@ -23,7 +23,7 @@ public final class PermissionUtils {
         String[] permission = new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION};
         if (isLocationPermissionGranted(activity)) return true;
 
-        ActivityCompat.requestPermissions(activity,permission,AppConstants.REQUEST_CODE_LOCATION_PERMISSION);
+        ActivityCompat.requestPermissions(activity, permission, AppConstants.REQUEST_CODE_LOCATION_PERMISSION);
         return false;
     }
 }
